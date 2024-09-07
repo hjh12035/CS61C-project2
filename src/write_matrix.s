@@ -25,16 +25,119 @@
 write_matrix:
 
     # Prologue
+    addi sp, sp, -8
+    sw s0, 0(sp)
+    sw s1, 4(sp)
+    
+    addi sp, sp, -16
+    sw ra, 0(sp)
+    sw a1, 4(sp)
+    sw a2, 8(sp)
+    sw a3, 12(sp)
+    li a1, 1
+    jal ra, fopen
+    li t0, -1
+    beq a0, t0, error_fopen
+    lw ra, 0(sp)
+    lw a1, 4(sp)
+    lw a2, 8(sp)
+    lw a3, 12(sp)
+    addi sp, sp, 16
+    
+    addi sp, sp, -20
+    sw ra, 0(sp)
+    sw a0, 4(sp)
+    sw a1, 8(sp)
+    sw a2, 12(sp)
+    sw a3, 16(sp)   
+    addi sp, sp, -4
+    sw a2, 0(sp)
+    mv a1, sp
+    li a2, 1
+    li a3, 4
+    jal ra, fwrite
+    addi sp, sp, 4
+    li a2, 1
+    bne a0, a2, error_fwrite
+    lw ra, 0(sp)
+    lw a0, 4(sp)
+    lw a1, 8(sp)
+    lw a2, 12(sp)
+    lw a3, 16(sp)
+    addi sp, sp, 20
+    
+    addi sp, sp, -20
+    sw ra, 0(sp)
+    sw a0, 4(sp)
+    sw a1, 8(sp)
+    sw a2, 12(sp)
+    sw a3, 16(sp)   
+    addi sp, sp, -4
+    sw a3, 0(sp)
+    mv a1, sp
+    li a2, 1
+    li a3, 4
+    jal ra, fwrite
+    addi sp, sp, 4
+    li a2, 1
+    bne a0, a2, error_fwrite
+    lw ra, 0(sp)
+    lw a0, 4(sp)
+    lw a1, 8(sp)
+    lw a2, 12(sp)
+    lw a3, 16(sp)
+    addi sp, sp, 20
+    
+    li s0, 0
+    mul s1, a2, a3
+loop_start:
+    slli t1, s0, 2
+    add t1, t1, a1
+    addi sp, sp, -20
+    sw ra, 0(sp)
+    sw a0, 4(sp)
+    sw a1, 8(sp)
+    sw a2, 12(sp)
+    sw a3, 16(sp)   
+    mv a1, t1
+    li a2, 1
+    li a3, 4
+    jal ra, fwrite
+    li a2, 1
+    bne a0, a2, error_fwrite
+    lw ra, 0(sp)
+    lw a0, 4(sp)
+    lw a1, 8(sp)
+    lw a2, 12(sp)
+    lw a3, 16(sp)
+    addi sp, sp, 20
 
-
-
-
-
-
-
-
-
+loop_end:
+    addi s0, s0, 1
+    blt s0, s1, loop_start
+    
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    jal ra, fclose
+    bne a0, x0, error_fclose
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    
     # Epilogue
-
+    lw s0, 0(sp)
+    lw s1, 4(sp)
+    addi sp, sp, 8
 
     jr ra
+
+error_fopen:
+    li a0, 27
+    j exit
+    
+error_fclose:
+    li a0, 28
+    j exit
+    
+error_fwrite:
+    li a0, 30
+    j exit
